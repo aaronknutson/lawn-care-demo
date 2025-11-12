@@ -1,0 +1,97 @@
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentWeather } from "../../services/weatherService";
+
+function WeatherWidget({ zipCode = "78701" }) {
+  const {
+    data: weatherData,
+    isLoading,
+    error,
+    isError,
+  } = useQuery({
+    queryKey: ["current-weather", zipCode],
+    queryFn: () => getCurrentWeather(zipCode),
+    retry: 1,
+    staleTime: 1000 * 60 * 15, // Cache for 15 minutes
+    refetchInterval: 1000 * 60 * 15, // Refetch every 15 minutes
+  });
+
+  // DEBUG LOGGING
+  console.log("[WeatherWidget] State:", {
+    isLoading,
+    isError,
+    error: error?.message || error,
+    hasWeatherData: !!weatherData,
+    weatherData: weatherData,
+    hasDataProperty: !!weatherData?.data,
+  });
+
+  if (isLoading) {
+    console.log("[WeatherWidget] Rendering loading state");
+    return (
+      <div className='bg-white rounded-lg shadow p-4 animate-pulse'>
+        <div className='h-4 bg-gray-200 rounded w-1/2 mb-2'></div>
+        <div className='h-8 bg-gray-200 rounded'></div>
+      </div>
+    );
+  }
+
+  const weather = weatherData;
+  console.log("[WeatherWidget] Rendering weather widget:", weather);
+
+  return (
+    <div className='bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4 text-white'>
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center'>
+          {weather.icon && (
+            <img
+              src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+              alt={weather.description}
+              className='w-16 h-16 -ml-2'
+            />
+          )}
+          <div>
+            <p className='text-3xl font-bold'>{weather.temperature}°F</p>
+            <p className='text-sm opacity-90 capitalize'>
+              {weather.description}
+            </p>
+          </div>
+        </div>
+        <div className='text-right space-y-1'>
+          <div className='flex items-center justify-end text-sm'>
+            <svg
+              className='w-4 h-4 mr-1'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z'
+              />
+            </svg>
+            <span>{weather.humidity}%</span>
+          </div>
+          <div className='flex items-center justify-end text-sm'>
+            <svg
+              className='w-4 h-4 mr-1'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M14 5l7 7m0 0l-7 7m7-7H3'
+              />
+            </svg>
+            <span>{weather.windSpeed} mph</span>
+          </div>
+          <div className='text-xs opacity-75 mt-2'>{weather.city}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default WeatherWidget;

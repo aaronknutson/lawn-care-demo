@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        #console {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #666;
+            background: white;
+        }
+        .error {
+            border-left-color: #e53e3e;
+            background: #fff5f5;
+        }
+        .success {
+            border-left-color: #38a169;
+            background: #f0fff4;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Widget Debug Tool</h1>
+    <button onclick="testWeatherAPI()">Test Weather API</button>
+    <button onclick="clearConsole()">Clear</button>
+    
+    <div id="console"></div>
+
+    <script>
+        const consoleDiv = document.getElementById('console');
+        
+        function log(message, type = 'log') {
+            const entry = document.createElement('div');
+            entry.className = `log ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleDiv.appendChild(entry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearConsole() {
+            consoleDiv.innerHTML = '';
+        }
+
+        async function testWeatherAPI() {
+            clearConsole();
+            log('Starting weather API test...', 'log');
+            log('Testing endpoint: http://localhost:5000/api/weather/current/78701', 'log');
+            
+            try {
+                // Test the direct API call
+                log('Making fetch request...', 'log');
+                const response = await fetch('http://localhost:5000/api/weather/current/78701');
+                log(`Response status: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    log(`Error: HTTP ${response.status}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                log(`Response received:`, 'success');
+                log(JSON.stringify(data, null, 2), 'log');
+                
+                // Check the data structure
+                if (data.success) {
+                    log('✓ Response has success=true', 'success');
+                } else {
+                    log('✗ Response success is not true', 'error');
+                }
+                
+                if (data.data) {
+                    log('✓ Response has data property', 'success');
+                    log(`  - temperature: ${data.data.temperature}°F`, 'log');
+                    log(`  - condition: ${data.data.condition}`, 'log');
+                    log(`  - description: ${data.data.description}`, 'log');
+                    log(`  - humidity: ${data.data.humidity}%`, 'log');
+                    log(`  - windSpeed: ${data.data.windSpeed} mph`, 'log');
+                    log(`  - city: ${data.data.city}`, 'log');
+                    log(`  - icon: ${data.data.icon}`, 'log');
+                } else {
+                    log('✗ Response does not have data property', 'error');
+                }
+                
+                log('Test complete!', 'success');
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                log(`Error details: ${error.stack}`, 'error');
+            }
+        }
+        
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Click "Test Weather API" to test the endpoint.', 'log');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather Widget Test</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function WeatherTest() {
+      const [weather, setWeather] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      useEffect(() => {
+        fetch('http://localhost:5000/api/weather/current/78701')
+          .then(res => res.json())
+          .then(data => {
+            console.log('Weather API Response:', data);
+            setWeather(data);
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error('Error fetching weather:', err);
+            setError(err.message);
+            setLoading(false);
+          });
+      }, []);
+
+      if (loading) return <div className="p-4">Loading...</div>;
+      if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+      if (!weather) return <div className="p-4">No weather data</div>;
+      if (!weather.data) return <div className="p-4">Weather data structure issue: {JSON.stringify(weather)}</div>;
+
+      const w = weather.data;
+
+      return (
+        <div className="p-8">
+          <h1 className="text-2xl font-bold mb-4">Weather Widget Test</h1>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4 text-white max-w-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                {w.icon && (
+                  <img
+                    src={`https://openweathermap.org/img/wn/${w.icon}@2x.png`}
+                    alt={w.description}
+                    className="w-16 h-16 -ml-2"
+                  />
+                )}
+                <div>
+                  <p className="text-3xl font-bold">{w.temperature}°F</p>
+                  <p className="text-sm opacity-90 capitalize">{w.description}</p>
+                </div>
+              </div>
+              <div className="text-right space-y-1">
+                <div className="flex items-center justify-end text-sm">
+                  <span>{w.humidity}%</span>
+                </div>
+                <div className="flex items-center justify-end text-sm">
+                  <span>{w.windSpeed} mph</span>
+                </div>
+                <div className="text-xs opacity-75 mt-2">
+                  {w.city}
+                </div>
+              </div>
+            </div>
+          </div>
+          <pre className="mt-4 p-4 bg-gray-100 rounded text-xs overflow-auto">
+            {JSON.stringify(weather, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<WeatherTest />, document.getElementById('root'));
+  </script>
+</body>
+</html>
