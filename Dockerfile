@@ -13,9 +13,9 @@ RUN npm install
 COPY . .
 
 # Accept build arguments for environment variables
-ARG VITE_API_URL
-ARG VITE_GOOGLE_MAPS_API_KEY
-ARG VITE_APP_ENV
+ARG VITE_API_URL=https://lawnserver.aknovusdemos.cloud/api
+ARG VITE_GOOGLE_MAPS_API_KEY=AIzaSyBETgNjD-b_ajsyw3FWbL_CPqpjnfzinpM
+ARG VITE_APP_ENV=production
 
 # Set environment variables for build
 ENV VITE_API_URL=$VITE_API_URL
