@@ -37,9 +37,9 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Expose port 80
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
+# Health check - use nginx pgrep to verify process is running
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD pgrep -f "nginx: master" || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
