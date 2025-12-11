@@ -34,8 +34,15 @@ function App() {
       <Router>
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
+              {/* Skip to main content link for accessibility */}
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary-600 focus:text-white focus:font-semibold focus:rounded-xl focus:shadow-2xl focus:ring-4 focus:ring-primary-300 focus:ring-offset-2 transition-all duration-200"
+              >
+                Skip to main content
+              </a>
               <Navbar />
-              <main className="flex-grow">
+              <main id="main-content" className="flex-grow">
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
